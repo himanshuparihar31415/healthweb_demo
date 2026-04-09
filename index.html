@@ -5,477 +5,260 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sunshine KOL Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   </head>
-  <body>
-    <div id="root"></div>
+  <body class="min-h-screen bg-slate-50 text-slate-900">
+    <div class="mx-auto max-w-7xl px-6 py-8 lg:px-8">
 
-    <script type="text/babel">
-      const { useMemo, useState } = React;
+      <!-- Header -->
+      <div class="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p class="text-sm font-medium uppercase tracking-[0.2em] text-sky-700">Pharma Compliance Analytics</p>
+          <h1 class="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Sunshine Data Dashboard for Key Opinion Leaders</h1>
+          <p class="mt-3 max-w-3xl text-sm leading-6 text-slate-600 sm:text-base">
+            A commercial and compliance-focused view of transfer-of-value activity, engagement mix, disclosure readiness, and KOL risk signals.
+          </p>
+        </div>
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:w-[520px]">
+          <select id="filter-period" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm outline-none">
+            <option>FY 2025 YTD</option>
+            <option>Q4 2025</option>
+            <option>Q3 2025</option>
+          </select>
+          <select id="filter-specialty" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm outline-none">
+            <option>All Specialties</option>
+            <option>Oncology</option>
+            <option>Cardiology</option>
+            <option>Neurology</option>
+            <option>Immunology</option>
+          </select>
+          <select id="filter-region" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm outline-none">
+            <option>All Regions</option>
+            <option>Northeast</option>
+            <option>South</option>
+            <option>West</option>
+            <option>Midwest</option>
+          </select>
+          <input id="filter-search" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm outline-none" placeholder="Search KOL or institution" />
+        </div>
+      </div>
 
-      function SunshineKOLDashboard() {
-        const baseKOLRows = [
-          {
-            name: "Dr. Sarah Mitchell",
-            specialty: "Oncology",
-            region: "Northeast",
-            organization: "Boston Cancer Institute",
-            spend: 186200,
-            engagements: 14,
-            meals: 4250,
-            speaking: 92000,
-            consulting: 68000,
-            travel: 21950,
-            risk: "High",
-            period: "FY 2025 YTD",
-          },
-          {
-            name: "Dr. James Alvarez",
-            specialty: "Cardiology",
-            region: "South",
-            organization: "Austin Heart Center",
-            spend: 129480,
-            engagements: 11,
-            meals: 2840,
-            speaking: 64000,
-            consulting: 41500,
-            travel: 21140,
-            risk: "Medium",
-            period: "FY 2025 YTD",
-          },
-          {
-            name: "Dr. Priya Raman",
-            specialty: "Neurology",
-            region: "West",
-            organization: "Pacific Neuro Group",
-            spend: 98720,
-            engagements: 9,
-            meals: 1930,
-            speaking: 51000,
-            consulting: 31000,
-            travel: 14790,
-            risk: "Low",
-            period: "FY 2025 YTD",
-          },
-          {
-            name: "Dr. Michael Chen",
-            specialty: "Immunology",
-            region: "Midwest",
-            organization: "Lakeside Medical",
-            spend: 157930,
-            engagements: 13,
-            meals: 3420,
-            speaking: 74500,
-            consulting: 56000,
-            travel: 24010,
-            risk: "High",
-            period: "FY 2025 YTD",
-          },
-          {
-            name: "Dr. Emily Carter",
-            specialty: "Oncology",
-            region: "South",
-            organization: "Houston Oncology Partners",
-            spend: 84200,
-            engagements: 8,
-            meals: 1760,
-            speaking: 38200,
-            consulting: 28400,
-            travel: 15840,
-            risk: "Medium",
-            period: "Q4 2025",
-          },
-          {
-            name: "Dr. Robert Singh",
-            specialty: "Cardiology",
-            region: "Northeast",
-            organization: "Metro Cardiac Care",
-            spend: 73150,
-            engagements: 7,
-            meals: 1540,
-            speaking: 33100,
-            consulting: 24750,
-            travel: 13760,
-            risk: "Low",
-            period: "Q4 2025",
-          },
-          {
-            name: "Dr. Nina Foster",
-            specialty: "Neurology",
-            region: "West",
-            organization: "Bay Neuro Institute",
-            spend: 65540,
-            engagements: 6,
-            meals: 1390,
-            speaking: 29800,
-            consulting: 21100,
-            travel: 13250,
-            risk: "Low",
-            period: "Q3 2025",
-          },
-          {
-            name: "Dr. Daniel Brooks",
-            specialty: "Oncology",
-            region: "Midwest",
-            organization: "Central Oncology Group",
-            spend: 91480,
-            engagements: 9,
-            meals: 1880,
-            speaking: 40250,
-            consulting: 30900,
-            travel: 18450,
-            risk: "High",
-            period: "Q3 2025",
-          },
-        ];
+      <!-- Summary Cards -->
+      <div id="summary-cards" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"></div>
 
-        const recentFlags = [
-          {
-            title: "Spend concentration detected",
-            detail: "12 KOLs account for 38% of total speaking fees in Q4.",
-            level: "High",
-          },
-          {
-            title: "Meal frequency threshold nearing",
-            detail: "Midwest territory has 9 HCPs close to internal meal frequency limit.",
-            level: "Medium",
-          },
-          {
-            title: "Disclosure readiness strong",
-            detail: "Only 17 records missing payment attribution metadata before next cycle.",
-            level: "Low",
-          },
-        ];
+      <!-- Charts Row -->
+      <div class="mt-8 grid gap-6 xl:grid-cols-[1.35fr_0.9fr]">
+        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-lg font-semibold">Transfer of Value by Specialty</h2>
+              <p class="mt-1 text-sm text-slate-500">Spend distribution across therapeutic engagement groups.</p>
+            </div>
+            <button class="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600">Export View</button>
+          </div>
+          <div id="specialty-chart" class="mt-6 space-y-5"></div>
+        </div>
 
-        const [selectedPeriod, setSelectedPeriod] = useState("FY 2025 YTD");
-        const [selectedSpecialty, setSelectedSpecialty] = useState("All Specialties");
-        const [selectedRegion, setSelectedRegion] = useState("All Regions");
-        const [searchTerm, setSearchTerm] = useState("");
-
-        const formatCurrency = (value) =>
-          new Intl.NumberFormat("en-US", {
-            style: "currency",
-            currency: "USD",
-            maximumFractionDigits: 0,
-          }).format(value);
-
-        const filteredKOLRows = useMemo(() => {
-          return baseKOLRows.filter((row) => {
-            const matchesPeriod = selectedPeriod === "All Periods" || row.period === selectedPeriod;
-            const matchesSpecialty =
-              selectedSpecialty === "All Specialties" || row.specialty === selectedSpecialty;
-            const matchesRegion = selectedRegion === "All Regions" || row.region === selectedRegion;
-            const query = searchTerm.trim().toLowerCase();
-            const matchesSearch =
-              query.length === 0 ||
-              row.name.toLowerCase().includes(query) ||
-              row.organization.toLowerCase().includes(query);
-
-            return matchesPeriod && matchesSpecialty && matchesRegion && matchesSearch;
-          });
-        }, [baseKOLRows, searchTerm, selectedPeriod, selectedRegion, selectedSpecialty]);
-
-        const summaryCards = useMemo(() => {
-          const totalSpend = filteredKOLRows.reduce((sum, row) => sum + row.spend, 0);
-          const highRiskCount = filteredKOLRows.filter((row) => row.risk === "High").length;
-          const disclosureCompleteness = filteredKOLRows.length
-            ? `${Math.max(90, Math.min(99.8, 96 + filteredKOLRows.length * 0.4)).toFixed(1)}%`
-            : "0.0%";
-
-          return [
-            {
-              title: "Total Transfer of Value",
-              value: formatCurrency(totalSpend),
-              subtitle: selectedPeriod,
-            },
-            {
-              title: "Active KOLs",
-              value: filteredKOLRows.length.toLocaleString(),
-              subtitle: "Across selected filters",
-            },
-            {
-              title: "High-Risk HCPs",
-              value: highRiskCount.toLocaleString(),
-              subtitle: "Above internal threshold",
-            },
-            {
-              title: "Disclosure Completeness",
-              value: disclosureCompleteness,
-              subtitle: "Submission readiness",
-            },
-          ];
-        }, [filteredKOLRows, selectedPeriod]);
-
-        const specialtyData = useMemo(() => {
-          const grouped = filteredKOLRows.reduce((acc, row) => {
-            acc[row.specialty] = (acc[row.specialty] || 0) + row.spend;
-            return acc;
-          }, {});
-
-          const total = Object.values(grouped).reduce((sum, value) => sum + value, 0);
-
-          return Object.entries(grouped)
-            .map(([label, value]) => ({
-              label,
-              value,
-              pct: total ? Math.round((value / total) * 100) : 0,
-            }))
-            .sort((a, b) => b.value - a.value);
-        }, [filteredKOLRows]);
-
-        const getRiskPill = (risk) => {
-          const base = "inline-flex rounded-full px-3 py-1 text-xs font-medium border";
-          if (risk === "High") return `${base} border-red-200 bg-red-50 text-red-700`;
-          if (risk === "Medium") return `${base} border-amber-200 bg-amber-50 text-amber-700`;
-          return `${base} border-emerald-200 bg-emerald-50 text-emerald-700`;
-        };
-
-        const getFlagPill = (level) => {
-          const base = "inline-flex rounded-full px-2.5 py-1 text-xs font-medium border";
-          if (level === "High") return `${base} border-red-200 bg-red-50 text-red-700`;
-          if (level === "Medium") return `${base} border-amber-200 bg-amber-50 text-amber-700`;
-          return `${base} border-sky-200 bg-sky-50 text-sky-700`;
-        };
-
-        return (
-          <div className="min-h-screen bg-slate-50 text-slate-900">
-            <div className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
-              <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 class="text-lg font-semibold">Compliance Signals</h2>
+          <p class="mt-1 text-sm text-slate-500">Recent indicators that may require review from compliance or field leadership.</p>
+          <div class="mt-5 space-y-4">
+            <div class="rounded-2xl border border-slate-200 p-4">
+              <div class="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-sm font-medium uppercase tracking-[0.2em] text-sky-700">
-                    Pharma Compliance Analytics
-                  </p>
-                  <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
-                    Sunshine Data Dashboard for Key Opinion Leaders
-                  </h1>
-                  <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600 sm:text-base">
-                    A commercial and compliance-focused view of transfer-of-value activity,
-                    engagement mix, disclosure readiness, and KOL risk signals.
-                  </p>
+                  <h3 class="font-medium text-slate-800">Spend concentration detected</h3>
+                  <p class="mt-2 text-sm leading-6 text-slate-600">12 KOLs account for 38% of total speaking fees in Q4.</p>
                 </div>
-
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:w-[520px]">
-                  <select
-                    value={selectedPeriod}
-                    onChange={(e) => setSelectedPeriod(e.target.value)}
-                    className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm outline-none"
-                  >
-                    <option>FY 2025 YTD</option>
-                    <option>Q4 2025</option>
-                    <option>Q3 2025</option>
-                  </select>
-                  <select
-                    value={selectedSpecialty}
-                    onChange={(e) => setSelectedSpecialty(e.target.value)}
-                    className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm outline-none"
-                  >
-                    <option>All Specialties</option>
-                    <option>Oncology</option>
-                    <option>Cardiology</option>
-                    <option>Neurology</option>
-                    <option>Immunology</option>
-                  </select>
-                  <select
-                    value={selectedRegion}
-                    onChange={(e) => setSelectedRegion(e.target.value)}
-                    className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm outline-none"
-                  >
-                    <option>All Regions</option>
-                    <option>Northeast</option>
-                    <option>South</option>
-                    <option>West</option>
-                    <option>Midwest</option>
-                  </select>
-                  <input
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm outline-none"
-                    placeholder="Search KOL or institution"
-                  />
-                </div>
+                <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-medium border border-red-200 bg-red-50 text-red-700">High</span>
               </div>
-
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                {summaryCards.map((card) => (
-                  <div
-                    key={card.title}
-                    className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
-                  >
-                    <p className="text-sm font-medium text-slate-500">{card.title}</p>
-                    <div className="mt-3 text-3xl font-semibold tracking-tight">{card.value}</div>
-                    <p className="mt-2 text-sm text-slate-500">{card.subtitle}</p>
-                  </div>
-                ))}
+            </div>
+            <div class="rounded-2xl border border-slate-200 p-4">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <h3 class="font-medium text-slate-800">Meal frequency threshold nearing</h3>
+                  <p class="mt-2 text-sm leading-6 text-slate-600">Midwest territory has 9 HCPs close to internal meal frequency limit.</p>
+                </div>
+                <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-medium border border-amber-200 bg-amber-50 text-amber-700">Medium</span>
               </div>
-
-              <div className="mt-8 grid gap-6 xl:grid-cols-[1.35fr_0.9fr]">
-                <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h2 className="text-lg font-semibold">Transfer of Value by Specialty</h2>
-                      <p className="mt-1 text-sm text-slate-500">
-                        Spend distribution across therapeutic engagement groups.
-                      </p>
-                    </div>
-                    <button className="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600">
-                      Export View
-                    </button>
-                  </div>
-
-                  <div className="mt-6 space-y-5">
-                    {specialtyData.length > 0 ? (
-                      specialtyData.map((item) => (
-                        <div key={item.label}>
-                          <div className="mb-2 flex items-center justify-between text-sm">
-                            <span className="font-medium text-slate-700">{item.label}</span>
-                            <span className="text-slate-500">{formatCurrency(item.value)}</span>
-                          </div>
-                          <div className="h-3 overflow-hidden rounded-full bg-slate-100">
-                            <div
-                              className="h-full rounded-full bg-sky-600"
-                              style={{ width: `${item.pct}%` }}
-                            />
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="rounded-2xl border border-dashed border-slate-200 p-6 text-sm text-slate-500">
-                        No specialty data available for the selected filters.
-                      </div>
-                    )}
-                  </div>
+            </div>
+            <div class="rounded-2xl border border-slate-200 p-4">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <h3 class="font-medium text-slate-800">Disclosure readiness strong</h3>
+                  <p class="mt-2 text-sm leading-6 text-slate-600">Only 17 records missing payment attribution metadata before next cycle.</p>
                 </div>
-
-                <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                  <h2 className="text-lg font-semibold">Compliance Signals</h2>
-                  <p className="mt-1 text-sm text-slate-500">
-                    Recent indicators that may require review from compliance or field leadership.
-                  </p>
-
-                  <div className="mt-5 space-y-4">
-                    {recentFlags.map((flag) => (
-                      <div key={flag.title} className="rounded-2xl border border-slate-200 p-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <h3 className="font-medium text-slate-800">{flag.title}</h3>
-                            <p className="mt-2 text-sm leading-6 text-slate-600">{flag.detail}</p>
-                          </div>
-                          <span className={getFlagPill(flag.level)}>{flag.level}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-8 rounded-3xl border border-slate-200 bg-white shadow-sm">
-                <div className="flex flex-col gap-3 border-b border-slate-200 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <h2 className="text-lg font-semibold">Top KOL Overview</h2>
-                    <p className="mt-1 text-sm text-slate-500">
-                      Commercial engagement profile blended with internal compliance risk signals.
-                    </p>
-                  </div>
-                  <div className="flex gap-3">
-                    <button className="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600">
-                      Bulk Review
-                    </button>
-                    <button className="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-medium text-white">
-                      Submit Disclosure Package
-                    </button>
-                  </div>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="min-w-full text-left text-sm">
-                    <thead className="bg-slate-50 text-slate-500">
-                      <tr>
-                        <th className="px-6 py-4 font-medium">KOL</th>
-                        <th className="px-6 py-4 font-medium">Specialty</th>
-                        <th className="px-6 py-4 font-medium">Region</th>
-                        <th className="px-6 py-4 font-medium">Organization</th>
-                        <th className="px-6 py-4 font-medium">Total Spend</th>
-                        <th className="px-6 py-4 font-medium">Engagements</th>
-                        <th className="px-6 py-4 font-medium">Meals</th>
-                        <th className="px-6 py-4 font-medium">Speaking</th>
-                        <th className="px-6 py-4 font-medium">Consulting</th>
-                        <th className="px-6 py-4 font-medium">Travel</th>
-                        <th className="px-6 py-4 font-medium">Risk</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredKOLRows.length > 0 ? (
-                        filteredKOLRows.map((row) => (
-                          <tr key={`${row.name}-${row.period}`} className="border-t border-slate-100">
-                            <td className="px-6 py-4">
-                              <div className="font-medium text-slate-800">{row.name}</div>
-                            </td>
-                            <td className="px-6 py-4 text-slate-600">{row.specialty}</td>
-                            <td className="px-6 py-4 text-slate-600">{row.region}</td>
-                            <td className="px-6 py-4 text-slate-600">{row.organization}</td>
-                            <td className="px-6 py-4 font-medium text-slate-800">
-                              {formatCurrency(row.spend)}
-                            </td>
-                            <td className="px-6 py-4 text-slate-600">{row.engagements}</td>
-                            <td className="px-6 py-4 text-slate-600">{formatCurrency(row.meals)}</td>
-                            <td className="px-6 py-4 text-slate-600">{formatCurrency(row.speaking)}</td>
-                            <td className="px-6 py-4 text-slate-600">{formatCurrency(row.consulting)}</td>
-                            <td className="px-6 py-4 text-slate-600">{formatCurrency(row.travel)}</td>
-                            <td className="px-6 py-4">
-                              <span className={getRiskPill(row.risk)}>{row.risk}</span>
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={11} className="px-6 py-10 text-center text-sm text-slate-500">
-                            No KOL records match the selected filters.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div className="mt-8 grid gap-6 lg:grid-cols-3">
-                <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                  <h3 className="text-base font-semibold">Recommended Actions</h3>
-                  <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
-                    <li>Prioritize targeted review for top spend recipients before the next reporting cycle.</li>
-                    <li>Introduce regional guardrails for meal frequency and travel justification capture.</li>
-                    <li>Align MSL, marketing, and compliance teams on specialty-specific spend thresholds.</li>
-                  </ul>
-                </div>
-
-                <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                  <h3 className="text-base font-semibold">Dashboard Use Cases</h3>
-                  <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
-                    <li>KOL engagement planning with compliance-aware visibility.</li>
-                    <li>Sunshine Act disclosure readiness review before submission windows.</li>
-                    <li>Risk-based monitoring of speaking, consulting, travel, and meal categories.</li>
-                  </ul>
-                </div>
-
-                <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                  <h3 className="text-base font-semibold">Data Sources</h3>
-                  <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
-                    <li>CRM / KOL master profiles</li>
-                    <li>Expense management and event systems</li>
-                    <li>Speaker bureau and advisory board records</li>
-                    <li>Compliance classification and disclosure workflows</li>
-                  </ul>
-                </div>
+                <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-medium border border-sky-200 bg-sky-50 text-sky-700">Low</span>
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- KOL Table -->
+      <div class="mt-8 rounded-3xl border border-slate-200 bg-white shadow-sm">
+        <div class="flex flex-col gap-3 border-b border-slate-200 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 class="text-lg font-semibold">Top KOL Overview</h2>
+            <p class="mt-1 text-sm text-slate-500">Commercial engagement profile blended with internal compliance risk signals.</p>
+          </div>
+          <div class="flex gap-3">
+            <button class="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600">Bulk Review</button>
+            <button class="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-medium text-white">Submit Disclosure Package</button>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-left text-sm">
+            <thead class="bg-slate-50 text-slate-500">
+              <tr>
+                <th class="px-6 py-4 font-medium">KOL</th>
+                <th class="px-6 py-4 font-medium">Specialty</th>
+                <th class="px-6 py-4 font-medium">Region</th>
+                <th class="px-6 py-4 font-medium">Organization</th>
+                <th class="px-6 py-4 font-medium">Total Spend</th>
+                <th class="px-6 py-4 font-medium">Engagements</th>
+                <th class="px-6 py-4 font-medium">Meals</th>
+                <th class="px-6 py-4 font-medium">Speaking</th>
+                <th class="px-6 py-4 font-medium">Consulting</th>
+                <th class="px-6 py-4 font-medium">Travel</th>
+                <th class="px-6 py-4 font-medium">Risk</th>
+              </tr>
+            </thead>
+            <tbody id="kol-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Bottom Cards -->
+      <div class="mt-8 grid gap-6 lg:grid-cols-3">
+        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h3 class="text-base font-semibold">Recommended Actions</h3>
+          <ul class="mt-4 space-y-3 text-sm leading-6 text-slate-600">
+            <li>Prioritize targeted review for top spend recipients before the next reporting cycle.</li>
+            <li>Introduce regional guardrails for meal frequency and travel justification capture.</li>
+            <li>Align MSL, marketing, and compliance teams on specialty-specific spend thresholds.</li>
+          </ul>
+        </div>
+        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h3 class="text-base font-semibold">Dashboard Use Cases</h3>
+          <ul class="mt-4 space-y-3 text-sm leading-6 text-slate-600">
+            <li>KOL engagement planning with compliance-aware visibility.</li>
+            <li>Sunshine Act disclosure readiness review before submission windows.</li>
+            <li>Risk-based monitoring of speaking, consulting, travel, and meal categories.</li>
+          </ul>
+        </div>
+        <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h3 class="text-base font-semibold">Data Sources</h3>
+          <ul class="mt-4 space-y-3 text-sm leading-6 text-slate-600">
+            <li>CRM / KOL master profiles</li>
+            <li>Expense management and event systems</li>
+            <li>Speaker bureau and advisory board records</li>
+            <li>Compliance classification and disclosure workflows</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <script>
+      const rows = [
+        { name: "Dr. Sarah Mitchell",  specialty: "Oncology",    region: "Northeast", organization: "Boston Cancer Institute",    spend: 186200, engagements: 14, meals: 4250,  speaking: 92000, consulting: 68000, travel: 21950, risk: "High",   period: "FY 2025 YTD" },
+        { name: "Dr. James Alvarez",   specialty: "Cardiology",  region: "South",     organization: "Austin Heart Center",        spend: 129480, engagements: 11, meals: 2840,  speaking: 64000, consulting: 41500, travel: 21140, risk: "Medium", period: "FY 2025 YTD" },
+        { name: "Dr. Priya Raman",     specialty: "Neurology",   region: "West",      organization: "Pacific Neuro Group",        spend: 98720,  engagements: 9,  meals: 1930,  speaking: 51000, consulting: 31000, travel: 14790, risk: "Low",    period: "FY 2025 YTD" },
+        { name: "Dr. Michael Chen",    specialty: "Immunology",  region: "Midwest",   organization: "Lakeside Medical",           spend: 157930, engagements: 13, meals: 3420,  speaking: 74500, consulting: 56000, travel: 24010, risk: "High",   period: "FY 2025 YTD" },
+        { name: "Dr. Emily Carter",    specialty: "Oncology",    region: "South",     organization: "Houston Oncology Partners",  spend: 84200,  engagements: 8,  meals: 1760,  speaking: 38200, consulting: 28400, travel: 15840, risk: "Medium", period: "Q4 2025" },
+        { name: "Dr. Robert Singh",    specialty: "Cardiology",  region: "Northeast", organization: "Metro Cardiac Care",         spend: 73150,  engagements: 7,  meals: 1540,  speaking: 33100, consulting: 24750, travel: 13760, risk: "Low",    period: "Q4 2025" },
+        { name: "Dr. Nina Foster",     specialty: "Neurology",   region: "West",      organization: "Bay Neuro Institute",        spend: 65540,  engagements: 6,  meals: 1390,  speaking: 29800, consulting: 21100, travel: 13250, risk: "Low",    period: "Q3 2025" },
+        { name: "Dr. Daniel Brooks",   specialty: "Oncology",    region: "Midwest",   organization: "Central Oncology Group",     spend: 91480,  engagements: 9,  meals: 1880,  speaking: 40250, consulting: 30900, travel: 18450, risk: "High",   period: "Q3 2025" },
+      ];
+
+      const fmt = (n) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+
+      function riskPill(risk) {
+        if (risk === "High")   return `<span class="inline-flex rounded-full px-3 py-1 text-xs font-medium border border-red-200 bg-red-50 text-red-700">High</span>`;
+        if (risk === "Medium") return `<span class="inline-flex rounded-full px-3 py-1 text-xs font-medium border border-amber-200 bg-amber-50 text-amber-700">Medium</span>`;
+        return `<span class="inline-flex rounded-full px-3 py-1 text-xs font-medium border border-emerald-200 bg-emerald-50 text-emerald-700">Low</span>`;
+      }
+
+      function getFiltered() {
+        const period    = document.getElementById("filter-period").value;
+        const specialty = document.getElementById("filter-specialty").value;
+        const region    = document.getElementById("filter-region").value;
+        const query     = document.getElementById("filter-search").value.trim().toLowerCase();
+
+        return rows.filter(r =>
+          (period    === "All Periods"    || r.period    === period) &&
+          (specialty === "All Specialties" || r.specialty === specialty) &&
+          (region    === "All Regions"    || r.region    === region) &&
+          (query.length === 0 || r.name.toLowerCase().includes(query) || r.organization.toLowerCase().includes(query))
         );
       }
 
-      const root = ReactDOM.createRoot(document.getElementById("root"));
-      root.render(<SunshineKOLDashboard />);
+      function render() {
+        const filtered = getFiltered();
+        const period = document.getElementById("filter-period").value;
+
+        // Summary cards
+        const totalSpend = filtered.reduce((s, r) => s + r.spend, 0);
+        const highRisk   = filtered.filter(r => r.risk === "High").length;
+        const disclosure = filtered.length
+          ? `${Math.max(90, Math.min(99.8, 96 + filtered.length * 0.4)).toFixed(1)}%`
+          : "0.0%";
+
+        document.getElementById("summary-cards").innerHTML = [
+          { title: "Total Transfer of Value", value: fmt(totalSpend),                    sub: period },
+          { title: "Active KOLs",             value: filtered.length.toLocaleString(),   sub: "Across selected filters" },
+          { title: "High-Risk HCPs",          value: highRisk.toLocaleString(),           sub: "Above internal threshold" },
+          { title: "Disclosure Completeness", value: disclosure,                          sub: "Submission readiness" },
+        ].map(c => `
+          <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-slate-500">${c.title}</p>
+            <div class="mt-3 text-3xl font-semibold tracking-tight">${c.value}</div>
+            <p class="mt-2 text-sm text-slate-500">${c.sub}</p>
+          </div>`).join("");
+
+        // Specialty chart
+        const grouped = {};
+        filtered.forEach(r => { grouped[r.specialty] = (grouped[r.specialty] || 0) + r.spend; });
+        const total = Object.values(grouped).reduce((s, v) => s + v, 0);
+        const specialtyData = Object.entries(grouped)
+          .map(([label, value]) => ({ label, value, pct: total ? Math.round(value / total * 100) : 0 }))
+          .sort((a, b) => b.value - a.value);
+
+        document.getElementById("specialty-chart").innerHTML = specialtyData.length
+          ? specialtyData.map(item => `
+              <div>
+                <div class="mb-2 flex items-center justify-between text-sm">
+                  <span class="font-medium text-slate-700">${item.label}</span>
+                  <span class="text-slate-500">${fmt(item.value)}</span>
+                </div>
+                <div class="h-3 overflow-hidden rounded-full bg-slate-100">
+                  <div class="h-full rounded-full bg-sky-600" style="width:${item.pct}%"></div>
+                </div>
+              </div>`).join("")
+          : `<div class="rounded-2xl border border-dashed border-slate-200 p-6 text-sm text-slate-500">No specialty data available for the selected filters.</div>`;
+
+        // Table
+        document.getElementById("kol-table-body").innerHTML = filtered.length
+          ? filtered.map(r => `
+              <tr class="border-t border-slate-100">
+                <td class="px-6 py-4"><div class="font-medium text-slate-800">${r.name}</div></td>
+                <td class="px-6 py-4 text-slate-600">${r.specialty}</td>
+                <td class="px-6 py-4 text-slate-600">${r.region}</td>
+                <td class="px-6 py-4 text-slate-600">${r.organization}</td>
+                <td class="px-6 py-4 font-medium text-slate-800">${fmt(r.spend)}</td>
+                <td class="px-6 py-4 text-slate-600">${r.engagements}</td>
+                <td class="px-6 py-4 text-slate-600">${fmt(r.meals)}</td>
+                <td class="px-6 py-4 text-slate-600">${fmt(r.speaking)}</td>
+                <td class="px-6 py-4 text-slate-600">${fmt(r.consulting)}</td>
+                <td class="px-6 py-4 text-slate-600">${fmt(r.travel)}</td>
+                <td class="px-6 py-4">${riskPill(r.risk)}</td>
+              </tr>`).join("")
+          : `<tr><td colspan="11" class="px-6 py-10 text-center text-sm text-slate-500">No KOL records match the selected filters.</td></tr>`;
+      }
+
+      ["filter-period", "filter-specialty", "filter-region", "filter-search"]
+        .forEach(id => document.getElementById(id).addEventListener("input", render));
+
+      render();
     </script>
   </body>
 </html>
